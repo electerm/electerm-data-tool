@@ -1,5 +1,7 @@
 # Electerm Data Tool
 
+[中文文档 (Chinese README)](./README.zh-CN.md)
+
 A command-line utility for managing Electerm application data, including database migration from v1 (NeDB) to v2 (SQLite) and data export functionality.
 
 ## Features

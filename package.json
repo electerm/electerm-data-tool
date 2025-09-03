@@ -1,0 +1,63 @@
+{
+  "name": "electerm-data-tool",
+  "version": "1.0.0",
+  "description": "electerm data export/migrate tool",
+  "main": "src/index.js",
+  "bin": {
+    "electerm-data-tool": "./src/index.js"
+  },
+  "scripts": {
+    "migrate": "node src/index.js migrate",
+    "export": "node src/index.js export",
+    "info": "node src/index.js info",
+    "update": "node -r dotenv/config bin/update-version.js",
+    "lint": "standard",
+    "fix": "standard --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/electerm/electerm-data-tool.git"
+  },
+  "keywords": [
+    "electerm",
+    "data",
+    "tool",
+    "migrate",
+    "export"
+  ],
+  "author": "ZHAO Xudong <zxdong@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/electerm/electerm-data-tool/issues"
+  },
+  "files": [
+    "src",
+    "LICENSE",
+    "README.md"
+  ],
+  "homepage": "https://github.com/electerm/electerm-data-tool#readme",
+  "dependencies": {
+    "@yetzt/nedb": "^1.8.0",
+    "commander": "^14.0.0",
+    "lodash": "^4.17.21",
+    "nanoid": "^3.3.8"
+  },
+  "standard": {
+    "ignore": [
+      "*.html",
+      "/res/",
+      "/temp",
+      "/data",
+      "/public"
+    ],
+    "parserOptions": {
+      "requireConfigFile": false,
+      "sourceType": "module"
+    }
+  },
+  "devDependencies": {
+    "axios": "^1.11.0",
+    "dotenv": "^17.2.2",
+    "standard": "^17.1.2"
+  }
+}

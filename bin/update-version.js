@@ -11,6 +11,7 @@ const fetchReleaseInfo = require('./fetch-release-info')
 // Get the project root directory
 const projectRoot = path.resolve(__dirname, '..')
 const appPropsPath = path.join(projectRoot, 'src', 'common', 'app-props.js')
+const packageJsonPath = path.join(projectRoot, 'package.json')
 
 async function updateVersion () {
   try {
@@ -51,6 +52,17 @@ async function updateVersion () {
     fs.writeFileSync(appPropsPath, updatedContent, 'utf8')
 
     console.log(`✅ Updated version in app-props.js to: ${cleanVersion}`)
+
+    // Update package.json version
+    const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8')
+    const packageJson = JSON.parse(packageJsonContent)
+
+    const oldPackageVersion = packageJson.version
+    packageJson.version = cleanVersion
+
+    fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n', 'utf8')
+
+    console.log(`✅ Updated version in package.json from ${oldPackageVersion} to: ${cleanVersion}`)
   } catch (error) {
     console.error('❌ Error updating version:', error.message)
     process.exit(1)

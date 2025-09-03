@@ -149,10 +149,6 @@ The exported JSON follows this structure:
 
 - **Node.js**: 16.0.0 or higher
 - **For SQLite (v2)**: Node.js 22.0.0 or higher
-- **Dependencies**: 
-  - `commander` - CLI framework
-  - `@yetzt/nedb` - NeDB database support
-  - `nanoid` - ID generation
 
 ## File Locations
 
@@ -204,19 +200,6 @@ electerm-data-tool info
 
 # 5. Export migrated data to verify
 electerm-data-tool export ~/electerm-backup-after-migration.json
-```
-
-### Using with npm scripts
-
-```bash
-# Quick migration
-npm run migrate
-
-# Quick export  
-npm run export ~/backup.json
-
-# Quick info
-npm run info
 ```
 
 ## Troubleshooting

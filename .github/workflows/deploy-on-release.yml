@@ -45,6 +45,30 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Get local package version
+        id: local_version
+        run: |
+          echo "version=$(node -p 'require(`./package.json`).version')" >> $GITHUB_OUTPUT
+
+      - name: Get published npm version
+        id: npm_version
+        run: |
+          NPM_VERSION=$(npm view electerm-data-tool version || echo "0.0.0")
+          echo "version=$NPM_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check if local version is greater than npm
+        id: should_publish
+        run: |
+          LOCAL=${{ steps.local_version.outputs.version }}
+          REMOTE=${{ steps.npm_version.outputs.version }}
+          if [ "$(npx semver $LOCAL -r ">$REMOTE")" = "$LOCAL" ]; then
+            echo "publish=true" >> $GITHUB_OUTPUT
+          else
+            echo "publish=false" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
       - uses: JS-DevTools/npm-publish@v3
         with:
           token: ${{secrets.NPM_TOKEN}}
+        if: steps.should_publish.outputs.publish == 'true'

@@ -5,7 +5,7 @@ on:
     types: [electerm-release]
 
   push:
-    branches: [ master ]
+    branches: [ main ]
 
   workflow_dispatch:
 

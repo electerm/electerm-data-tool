@@ -27,6 +27,26 @@ program
   .name('electerm-data-tool')
   .description('CLI tool for electerm data migration and export')
   .version(pkg.version)
+  .option('-d, --data-path <path>', 'Custom path to electerm data directory (for portable installations)')
+  .hook('preAction', (thisCommand) => {
+    // Set custom data path if provided
+    if (thisCommand.opts().dataPath) {
+      const { existsSync } = require('fs')
+      const { resolve } = require('path')
+
+      const customPath = resolve(thisCommand.opts().dataPath)
+
+      // Validate that the custom path exists
+      if (!existsSync(customPath)) {
+        console.error(`❌ Custom data path does not exist: ${customPath}`)
+        console.error('   Please ensure the directory exists or check the path.')
+        process.exit(1)
+      }
+
+      process.env.ELECTERM_DATA_PATH = customPath
+      console.log(`📁 Using custom data path: ${customPath}`)
+    }
+  })
 
 /**
  * Migration command - migrates from NeDB (v1) to SQLite (v2)
@@ -48,6 +68,11 @@ program
       }
 
       log.info('Starting migration process...')
+
+      // Show the data path being used
+      const { appPath } = require('./common/app-props')
+      console.log(`📁 Data path: ${appPath}`)
+
       await migrate()
       log.info('Migration completed successfully!')
       console.log('✅ Migration from NeDB to SQLite completed successfully!')
@@ -68,6 +93,10 @@ program
   .action(async (outputPath) => {
     try {
       log.info('Starting data export...')
+
+      // Show the data path being used
+      const { appPath } = require('./common/app-props')
+      console.log(`📁 Data path: ${appPath}`)
 
       // Check if migration is needed to determine which database to use
       const { checkMigrate } = require('./migrate/migrate-1-to-2')
@@ -172,6 +201,12 @@ program
   .description('Display information about the current electerm data')
   .action(async () => {
     try {
+      // Show the data path being used
+      const { appPath } = require('./common/app-props')
+      console.log('📊 Electerm Data Information')
+      console.log(`📁 Data path: ${appPath}`)
+      console.log('='.repeat(50))
+
       // Check if migration is needed to determine which database to use
       const { checkMigrate } = require('./migrate/migrate-1-to-2')
       const shouldMigrate = checkMigrate()
@@ -206,9 +241,8 @@ program
       }
 
       const { dbAction, tables } = dbModule
-      console.log('📊 Electerm Data Information')
       console.log(`Database Type: ${dbType}`)
-      console.log('='.repeat(40))
+      console.log('='.repeat(50))
 
       let totalRecords = 0
       for (const table of tables) {
@@ -222,7 +256,7 @@ program
         }
       }
 
-      console.log('='.repeat(40))
+      console.log('='.repeat(50))
       console.log(`Total Records: ${totalRecords}`)
     } catch (error) {
       console.error('❌ Failed to read data:', error.message)

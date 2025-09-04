@@ -51,6 +51,39 @@ electerm-data-tool [command] [options]
 - `--help` - 显示帮助信息
 - `--version` - 显示版本号
 
+可用选项：
+
+- `-d, --data-path <路径>` - 指定 Electerm 数据目录（便携版/自定义路径支持）
+
+### 自定义数据路径（便携版支持）
+
+对于便携版或 Electerm 数据存储在自定义位置的情况，可通过 `--data-path` 选项指定数据目录：
+
+```bash
+# 从自定义目录导出数据
+electerm-data-tool --data-path /path/to/portable/electerm export backup.json
+
+# 迁移自定义目录数据
+electerm-data-tool --data-path /path/to/portable/electerm migrate
+
+# 查看自定义目录信息
+electerm-data-tool --data-path /path/to/portable/electerm info
+```
+
+**示例：**
+```bash
+# Windows 便携版
+electerm-data-tool --data-path "C:\\PortableApps\\Electerm\\Data" export backup.json
+
+# macOS U 盘
+electerm-data-tool --data-path "/Volumes/USB/electerm-data" migrate
+
+# Linux 自定义安装
+electerm-data-tool --data-path "/opt/electerm/data" info
+```
+
+工具会校验指定路径是否存在。
+
 ### 1. 数据库迁移
 
 将 Electerm 数据库从 v1 (NeDB) 迁移到 v2 (SQLite)：
@@ -147,6 +180,41 @@ electerm-data-tool info
 
 迁移时 NeDB 文件会自动备份为：
 - `electerm.bookmarks.nedb-{timestamp}.bak`
+
+### 数据路径优先级
+
+Electerm 数据工具会按如下优先级查找数据目录：
+
+1. `--data-path` 命令行参数（最高优先级）
+2. `APP_PATH` 环境变量（兼容旧用法）
+3. 默认平台路径（最低优先级）
+
+**示例：**
+```bash
+# 推荐：命令行参数
+electerm-data-tool --data-path /path/to/data info
+
+# 兼容旧用法：环境变量
+APP_PATH=/path/to/data electerm-data-tool info
+
+# 命令行参数优先生效
+APP_PATH=/path/one electerm-data-tool --data-path /path/two info
+# 实际使用 /path/two
+```
+
+## 环境变量
+
+工具支持如下环境变量进行配置：
+
+### `APP_PATH`（兼容旧用法）
+
+设置应用数据目录（旧用法，仍然兼容）：
+
+```bash
+APP_PATH=/custom/path electerm-data-tool info
+```
+
+如需便携/自定义目录，推荐使用 `--data-path` 选项。
 
 ## 示例流程
 

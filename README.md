@@ -51,6 +51,39 @@ Available commands:
 - `--help` - Show help information
 - `--version` - Show version number
 
+Available options:
+
+- `-d, --data-path <path>` - Custom path to electerm data directory (for portable installations)
+
+### Custom Data Path (Portable Support)
+
+For portable installations where Electerm data is stored in a custom location, use the `--data-path` option:
+
+```bash
+# Export data from custom location
+electerm-data-tool --data-path /path/to/portable/electerm export backup.json
+
+# Migrate data in custom location
+electerm-data-tool --data-path /path/to/portable/electerm migrate
+
+# Check info for custom location
+electerm-data-tool --data-path /path/to/portable/electerm info
+```
+
+**Examples:**
+```bash
+# Windows portable installation
+electerm-data-tool --data-path "C:\PortableApps\Electerm\Data" export backup.json
+
+# macOS custom installation
+electerm-data-tool --data-path "/Volumes/USB/electerm-data" migrate
+
+# Linux custom installation
+electerm-data-tool --data-path "/opt/electerm/data" info
+```
+
+The tool will validate that the specified path exists before proceeding.
+
 ### 1. Database Migration
 
 Migrate your Electerm database from v1 (NeDB) to v2 (SQLite):
@@ -144,6 +177,39 @@ The exported JSON follows this structure:
 - During export, passwords are automatically decrypted to plain text
 - The `passwordEncrypted` flag is removed from exported data
 - Exported passwords are human-readable for backup purposes
+
+## Environment Variables
+
+The tool supports the following environment variables for configuration:
+
+### `APP_PATH` (Legacy)
+
+Sets the base application data directory. This is the legacy method still supported for backward compatibility.
+
+```bash
+APP_PATH=/custom/path electerm-data-tool info
+```
+
+### Data Path Priority
+
+The tool uses the following priority order for determining the data path:
+
+1. **`--data-path` option** (highest priority) - Command-line argument
+2. **`APP_PATH` environment variable** - Legacy support
+3. **Default platform path** (lowest priority) - System default
+
+**Examples:**
+```bash
+# Using command-line option (recommended)
+electerm-data-tool --data-path /path/to/data info
+
+# Using environment variable (legacy)
+APP_PATH=/path/to/data electerm-data-tool info
+
+# Command-line option overrides environment variable
+APP_PATH=/path/one electerm-data-tool --data-path /path/two info
+# Will use /path/two
+```
 
 ## Requirements
 

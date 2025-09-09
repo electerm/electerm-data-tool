@@ -4,11 +4,20 @@
 
 const { resolve } = require('path')
 const { existsSync, renameSync } = require('fs')
-const { appPath, defaultUserName } = require('../common/app-props')
+const { appPath, defaultUserName, getAppType } = require('../common/app-props')
 const log = require('../common/log')
 
 const reso = (name) => {
-  return resolve(appPath, 'electerm', 'users', defaultUserName, `electerm.${name}.nedb`)
+  const appType = getAppType()
+  let basePath
+
+  if (appType === 'web') {
+    basePath = resolve(appPath, 'nedb-database', 'users', defaultUserName)
+  } else {
+    basePath = resolve(appPath, 'electerm', 'users', defaultUserName)
+  }
+
+  return resolve(basePath, `electerm.${name}.nedb`)
 }
 
 const tables = [

@@ -51,6 +51,13 @@ electerm-data-tool [command] [options]
 - `--help` - 显示帮助信息
 - `--version` - 显示版本号
 
+### 全局选项
+
+- `--app-type <type>` - 指定应用类型（`desktop` 或 `web`）
+  - `desktop`（默认）：标准 Electerm 桌面应用
+  - `web`：Electerm Web 应用，使用不同的路径结构
+- `-d, --data-path <path>` - 自定义 Electerm 数据目录路径（用于便携安装）
+
 ### 1. 数据库迁移
 
 将 Electerm 数据库从 v1 (NeDB) 迁移到 v2 (SQLite)：
@@ -89,9 +96,93 @@ electerm-data-tool info
 ```
 
 将显示：
+
 - 数据库类型（v1 NeDB 或 v2 SQLite）
 - 各表数据条数
 - 如需迁移会有提示
+
+## 应用类型
+
+工具支持两种应用类型，使用不同的路径结构：
+
+### 桌面应用（默认）
+
+标准 Electerm 桌面应用使用默认路径结构：
+
+```bash
+electerm-data-tool info
+# 或明确指定桌面类型
+electerm-data-tool info --app-type desktop
+```
+
+**默认路径：**
+
+- NeDB 文件：`{APP_PATH}/electerm/users/default_user/electerm.*.nedb`
+- SQLite 文件：`{APP_PATH}/electerm/users/default_user/electerm*.db`
+
+### Web 应用
+
+Electerm Web 应用使用自定义路径结构：
+
+```bash
+electerm-data-tool info --app-type web
+```
+
+**Web 路径：**
+
+- NeDB 文件：`{APP_PATH}/nedb-database/users/default_user/electerm.*.nedb`
+- SQLite 文件：`{APP_PATH}/sqlite/electerm*.db`
+
+### 自定义数据目录
+
+可以使用 `APP_PATH` 环境变量指定自定义数据目录：
+
+```bash
+# Web 应用示例
+export APP_PATH="/path/to/your/data"
+electerm-data-tool migrate --app-type web
+
+# 桌面应用示例
+export APP_PATH="/custom/path"
+electerm-data-tool export backup.json --app-type desktop
+```
+
+**完整 Web 应用示例：**
+```bash
+# 设置自定义数据目录
+export APP_PATH="/Users/username/my-electerm-data"
+
+# 检查数据库状态
+electerm-data-tool info --app-type web
+
+# 导出数据
+electerm-data-tool export backup.json --app-type web
+
+# 从 NeDB 迁移到 SQLite
+electerm-data-tool migrate --app-type web
+```
+
+### 便携安装
+
+对于便携安装或自定义数据目录，使用 `--data-path` 选项：
+
+```bash
+# 使用 --data-path 选项（推荐用于便携安装）
+electerm-data-tool info --data-path "/path/to/portable/electerm" --app-type desktop
+electerm-data-tool export backup.json --data-path "/path/to/portable/electerm" --app-type desktop
+electerm-data-tool migrate --data-path "/path/to/portable/electerm" --app-type desktop
+
+# Web 应用自定义数据路径
+electerm-data-tool info --data-path "/custom/data/directory" --app-type web
+electerm-data-tool export backup.json --data-path "/custom/data/directory" --app-type web
+electerm-data-tool migrate --data-path "/custom/data/directory" --app-type web
+```
+
+**路径优先级：**
+
+1. `--data-path` 选项（最高优先级）
+2. `APP_PATH` 环境变量
+3. 默认系统路径（最低优先级）
 
 ## 数据库自动检测
 

@@ -51,6 +51,13 @@ Available commands:
 - `--help` - Show help information
 - `--version` - Show version number
 
+### Global Options
+
+- `--app-type <type>` - Specify application type (`desktop` or `web`)
+  - `desktop` (default): Standard Electerm desktop application
+  - `web`: Electerm web application with different path structure
+- `-d, --data-path <path>` - Custom path to electerm data directory (for portable installations)
+
 ### 1. Database Migration
 
 Migrate your Electerm database from v1 (NeDB) to v2 (SQLite):
@@ -100,9 +107,90 @@ electerm-data-tool info
 ```
 
 This will show:
+
 - Database type (v1 NeDB or v2 SQLite)
 - Number of records in each table
 - Migration recommendations if applicable
+
+## Application Types
+
+The tool supports two application types with different path structures:
+
+### Desktop Application (Default)
+
+Standard Electerm desktop application using the default path structure:
+
+```bash
+electerm-data-tool info
+# or explicitly specify desktop type
+electerm-data-tool info --app-type desktop
+```
+
+**Default paths:**
+- NeDB files: `{APP_PATH}/electerm/users/default_user/electerm.*.nedb`
+- SQLite files: `{APP_PATH}/electerm/users/default_user/electerm*.db`
+
+### Web Application
+
+Electerm web application with customized path structure:
+
+```bash
+electerm-data-tool info --app-type web
+```
+
+**Web paths:**
+- NeDB files: `{APP_PATH}/nedb-database/users/default_user/electerm.*.nedb`
+- SQLite files: `{APP_PATH}/sqlite/electerm*.db`
+
+### Custom Data Directory
+
+You can specify a custom data directory using the `APP_PATH` environment variable:
+
+```bash
+# Example for web application
+export APP_PATH="/path/to/your/data"
+electerm-data-tool migrate --app-type web
+
+# Example for desktop application  
+export APP_PATH="/custom/path"
+electerm-data-tool export backup.json --app-type desktop
+```
+
+**Complete web application example:**
+```bash
+# Set custom data directory
+export APP_PATH="/Users/username/my-electerm-data"
+
+# Check database status
+electerm-data-tool info --app-type web
+
+# Export data
+electerm-data-tool export backup.json --app-type web
+
+# Migrate from NeDB to SQLite
+electerm-data-tool migrate --app-type web
+```
+
+### Portable Installations
+
+For portable installations or custom data directories, use the `--data-path` option:
+
+```bash
+# Using --data-path option (recommended for portable installations)
+electerm-data-tool info --data-path "/path/to/portable/electerm" --app-type desktop
+electerm-data-tool export backup.json --data-path "/path/to/portable/electerm" --app-type desktop
+electerm-data-tool migrate --data-path "/path/to/portable/electerm" --app-type desktop
+
+# Web application with custom data path
+electerm-data-tool info --data-path "/custom/data/directory" --app-type web
+electerm-data-tool export backup.json --data-path "/custom/data/directory" --app-type web
+electerm-data-tool migrate --data-path "/custom/data/directory" --app-type web
+```
+
+**Path Priority:**
+1. `--data-path` option (highest priority)
+2. `APP_PATH` environment variable  
+3. Default system-specific path (lowest priority)
 
 ## Database Detection
 
@@ -149,10 +237,6 @@ The exported JSON follows this structure:
 
 - **Node.js**: 16.0.0 or higher
 - **For SQLite (v2)**: Node.js 22.0.0 or higher
-- **Dependencies**: 
-  - `commander` - CLI framework
-  - `@yetzt/nedb` - NeDB database support
-  - `nanoid` - ID generation
 
 ## File Locations
 
@@ -204,19 +288,6 @@ electerm-data-tool info
 
 # 5. Export migrated data to verify
 electerm-data-tool export ~/electerm-backup-after-migration.json
-```
-
-### Using with npm scripts
-
-```bash
-# Quick migration
-npm run migrate
-
-# Quick export  
-npm run export ~/backup.json
-
-# Quick info
-npm run info
 ```
 
 ## Troubleshooting

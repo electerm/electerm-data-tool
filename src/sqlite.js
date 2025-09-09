@@ -3,14 +3,30 @@
  * Updated to use two database files: one for 'data' table, one for others
  */
 
-const { appPath, defaultUserName } = require('./common/app-props')
+const { appPath, defaultUserName, getAppType } = require('./common/app-props')
 const { resolve } = require('path')
 const uid = require('./common/uid')
 const { DatabaseSync } = require('node:sqlite')
 
-// Define paths for two database files
-const mainDbPath = resolve(appPath, 'electerm', 'users', defaultUserName, 'electerm.db')
-const dataDbPath = resolve(appPath, 'electerm', 'users', defaultUserName, 'electerm_data.db')
+// Define paths for two database files based on appType
+function getDbPaths () {
+  const appType = getAppType()
+  let basePath
+
+  if (appType === 'web') {
+    // For web type, SQLite files go directly in sqlite folder
+    basePath = resolve(appPath, 'sqlite')
+  } else {
+    basePath = resolve(appPath, 'electerm', 'users', defaultUserName)
+  }
+
+  return {
+    mainDbPath: resolve(basePath, 'electerm.db'),
+    dataDbPath: resolve(basePath, 'electerm_data.db')
+  }
+}
+
+const { mainDbPath, dataDbPath } = getDbPaths()
 
 // Create two database instances
 const mainDb = new DatabaseSync(mainDbPath)

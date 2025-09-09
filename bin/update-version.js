@@ -58,11 +58,15 @@ async function updateVersion () {
     const packageJson = JSON.parse(packageJsonContent)
 
     const oldPackageVersion = packageJson.version
-    packageJson.version = cleanVersion
-
-    fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n', 'utf8')
-
-    console.log(`✅ Updated version in package.json from ${oldPackageVersion} to: ${cleanVersion}`)
+    // Only update if cleanVersion > oldPackageVersion
+    const compareVersion = require('../src/common/version-compare')
+    if (compareVersion(cleanVersion, oldPackageVersion) > 0) {
+      packageJson.version = cleanVersion
+      fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n', 'utf8')
+      console.log(`✅ Updated version in package.json from ${oldPackageVersion} to: ${cleanVersion}`)
+    } else {
+      console.log(`ℹ️  package.json version not changed (current: ${oldPackageVersion}, new: ${cleanVersion})`)
+    }
   } catch (error) {
     console.error('❌ Error updating version:', error.message)
     process.exit(1)

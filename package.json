@@ -1,6 +1,6 @@
 {
   "name": "electerm-data-tool",
-  "version": "2.1.9",
+  "version": "2.1.10",
   "description": "electerm data export/migrate tool",
   "main": "src/index.js",
   "bin": {

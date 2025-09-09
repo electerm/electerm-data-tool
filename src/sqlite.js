@@ -3,21 +3,28 @@
  * Updated to use two database files: one for 'data' table, one for others
  */
 
-const { appPath, defaultUserName, getAppType } = require('./common/app-props')
+const { defaultUserName, getAppType, getCurrentAppPath } = require('./common/app-props')
 const { resolve } = require('path')
+const { mkdirSync, existsSync } = require('fs')
 const uid = require('./common/uid')
 const { DatabaseSync } = require('node:sqlite')
 
 // Define paths for two database files based on appType
 function getDbPaths () {
   const appType = getAppType()
+  const currentAppPath = getCurrentAppPath()
   let basePath
 
   if (appType === 'web') {
     // For web type, SQLite files go directly in sqlite folder
-    basePath = resolve(appPath, 'sqlite')
+    basePath = resolve(currentAppPath, 'sqlite')
   } else {
-    basePath = resolve(appPath, 'electerm', 'users', defaultUserName)
+    basePath = resolve(currentAppPath, 'electerm', 'users', defaultUserName)
+  }
+
+  // Ensure the directory exists - check first, then create if needed
+  if (!existsSync(basePath)) {
+    mkdirSync(basePath, { recursive: true })
   }
 
   return {
@@ -26,11 +33,26 @@ function getDbPaths () {
   }
 }
 
-const { mainDbPath, dataDbPath } = getDbPaths()
+// Lazy initialization of database instances
+let mainDb = null
+let dataDb = null
 
-// Create two database instances
-const mainDb = new DatabaseSync(mainDbPath)
-const dataDb = new DatabaseSync(dataDbPath)
+function initializeDatabases () {
+  if (mainDb === null || dataDb === null) {
+    const { mainDbPath, dataDbPath } = getDbPaths()
+    mainDb = new DatabaseSync(mainDbPath)
+    dataDb = new DatabaseSync(dataDbPath)
+
+    // Create tables in appropriate databases
+    for (const table of tables) {
+      if (table === 'data') {
+        dataDb.exec(`CREATE TABLE IF NOT EXISTS \`${table}\` (_id TEXT PRIMARY KEY, data TEXT)`)
+      } else {
+        mainDb.exec(`CREATE TABLE IF NOT EXISTS \`${table}\` (_id TEXT PRIMARY KEY, data TEXT)`)
+      }
+    }
+  }
+}
 
 const tables = [
   'bookmarks',
@@ -45,17 +67,9 @@ const tables = [
   'profiles'
 ]
 
-// Create tables in appropriate databases
-for (const table of tables) {
-  if (table === 'data') {
-    dataDb.exec(`CREATE TABLE IF NOT EXISTS \`${table}\` (_id TEXT PRIMARY KEY, data TEXT)`)
-  } else {
-    mainDb.exec(`CREATE TABLE IF NOT EXISTS \`${table}\` (_id TEXT PRIMARY KEY, data TEXT)`)
-  }
-}
-
 // Helper function to get the appropriate database for a table
 function getDatabase (dbName) {
+  initializeDatabases()
   return dbName === 'data' ? dataDb : mainDb
 }
 

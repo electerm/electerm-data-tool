@@ -44,9 +44,15 @@ Object.defineProperty(exports, 'appPath', {
   get: getElectermDataPath
 })
 
+// Function to get current app path dynamically (for modules that need it as a function)
+function getCurrentAppPath () {
+  return getElectermDataPath()
+}
+
 exports.defaultUserName = 'default_user'
 exports.setAppType = setAppType
 exports.getAppType = getAppType
+exports.getCurrentAppPath = getCurrentAppPath
 exports.packInfo = {
   version
 }

@@ -36,8 +36,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-
-      - run: npm config set legacy-peer-deps true
+          
       - name: Install dependencies
         run: npm ci
 
@@ -69,10 +68,7 @@ jobs:
           fi
         shell: bash
 
-
-      - run: npm i
-      - name: Create .npmrc
-        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
-
-      - name: Publish
-        run: npm publish
+      - uses: JS-DevTools/npm-publish@v3
+        with:
+          token: ${{secrets.NPM_TOKEN}}
+        if: steps.should_publish.outputs.publish == 'true'
